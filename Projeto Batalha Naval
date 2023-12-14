@@ -1,0 +1,64 @@
+import pickle
+from random import randint
+
+class BatalhaNaval:
+    def _init_(self):
+        self.tabuleiro = [["O"] * 10 for _ in range(10)]
+        self.navios = [[randint(0, 9), randint(0, 9)] for _ in range(5)]
+        self.tentativas = 0
+
+    def exibir_tabuleiro(self, mostrar_navios=False):
+        for linha in self.tabuleiro:
+            print(" ".join(linha))
+
+    def verificar_palpite(self, palpite):
+        return palpite in self.navios
+
+    def jogar(self):
+        print("Bem-vindo à Batalha Naval!")
+        self.exibir_tabuleiro()
+
+        while self.navios:
+            try:
+                palpite = list(map(int, input("Digite a linha e coluna do seu palpite (0-9), separadas por espaço: ").split()))
+                if len(palpite) != 2 or not (0 <= palpite[0] <= 9 and 0 <= palpite[1] <= 9):
+                    raise ValueError
+            except ValueError:
+                print("Entrada inválida. Por favor, digite duas coordenadas válidas (0-9)!")
+                continue
+
+            self.tentativas += 1
+
+            if self.verificar_palpite(palpite):
+                print("Parabéns! Você acertou um navio!")
+                self.tabuleiro[palpite[0]][palpite[1]] = "X"
+                self.navios.remove(palpite)
+            else:
+                print("Você não acertou nenhum navio!")
+                self.tabuleiro[palpite[0]][palpite[1]] = "-"
+
+            self.exibir_tabuleiro()
+
+        print("Parabéns! Você afundou todos os navios!")
+        print("Você usou", self.tentativas, "tentativas.")
+
+    def salvar_jogo(self, nome_arquivo):
+        with open(nome_arquivo, 'wb') as arquivo:
+            pickle.dump(self, arquivo)
+        print("Jogo salvo com sucesso!")
+
+    @staticmethod
+    def carregar_jogo(nome_arquivo):
+        with open(nome_arquivo, 'rb') as arquivo:
+            return pickle.load(arquivo)
+
+# Exemplo de uso do jogo
+jogo = BatalhaNaval()
+jogo.jogar()
+
+# Salvar o jogo
+jogo.salvar_jogo('jogo_salvo.pkl')
+
+# Carregar o jogo
+jogo_salvo = BatalhaNaval.carregar_jogo('jogo_salvo.pkl')
+jogo_salvo.jogar()
